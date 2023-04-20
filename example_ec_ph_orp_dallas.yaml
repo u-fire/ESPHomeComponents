@@ -83,7 +83,7 @@ button:
     icon: mdi:format-vertical-align-top
     on_press:
         lambda: |-
-          id(ec).calibrateHigh(1.0);
+          id(ec).calibrateHigh(10.0);
 
   - platform: template
     id: ec_calibrate_reset
