@@ -57,6 +57,12 @@ All components can be purchased at [microfire.co](https://microfire.co/).
 
 * * *
 
+### Previous Versions
+
+A big thanks to [Pascal Vizeli](https://github.com/pvizeli?ref=microfire-llc) and [Jesse Hills](https://github.com/jesserockz?ref=microfire-llc) for porting our [older](https://github.com/esphome/esphome/tree/dev/esphome/components/ufire_ec) [sensors](https://github.com/esphome/esphome/tree/dev/esphome/components/ufire_ise) to ESPHome. They were a great starting point for these components.
+
+* * *
+
 ### Ask a question 🤙
 
 *   [Discord](https://discord.gg/rAnZPdW)
