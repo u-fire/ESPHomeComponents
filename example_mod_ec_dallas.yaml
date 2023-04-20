@@ -1,0 +1,88 @@
+substitutions:
+  friendly_name: Microfire Mod-EC
+  device_name: microfire-mod-ec
+esphome:
+  name: $device_name
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino
+logger:
+api:
+ota:
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  ap:
+    ssid: $device_name
+    password: !secret wifi_failover
+captive_portal:
+
+# import the mod-ec component
+external_components:
+  - source:
+      type: git
+      url: https://github.com/u-fire/ESPHomeComponents/
+
+# https://esphome.io/components/i2c.html
+i2c:
+  sda: 21
+  scl: 22
+
+# https://esphome.io/components/sensor/dallas.html
+dallas:
+  - pin: 23
+    id: dallas_temp
+
+sensor:
+  - platform: mod_ec
+    id: ec
+    update_interval: never
+    name: EC
+    temperature_sensor: water_temp    # optional: defaults to 25°C
+    temperature_constant: 25.0        # optional: defaults to 25°C
+    temperature_coefficient: 0.019    # optional: defaults to 0.019
+
+  - platform: dallas
+    index: 0
+    name: "Temperature"
+    id: water_temp
+    on_value:
+      then:
+        - component.update: ec
+
+button:
+  - platform: template
+    id: ec_calibrate_low
+    name: EC Calibrate Low 0.1
+    icon: mdi:format-vertical-align-bottom
+    on_press:
+        lambda: |-
+          id(ec).calibrateLow(0.1);
+          
+  - platform: template
+    id: ec_calibrate_mid
+    name: EC Calibrate Mid 1.0
+    icon: mdi:format-vertical-align-center
+    on_press:
+        lambda: |-
+          id(ec).calibrateMid(1.0);
+
+  - platform: template
+    id: ec_calibrate_high
+    name: EC Calibrate High 10.0
+    icon: mdi:format-vertical-align-top
+    on_press:
+        lambda: |-
+          id(ec).calibrateHigh(10.0);
+
+  - platform: template
+    id: ec_calibrate_reset
+    name: EC Calibrate Reset
+    icon: mdi:restore
+    on_press:
+        lambda: |-
+          id(ec).calibrateReset();
+
+  - platform: factory_reset
+    name: Restart with Factory Default Settings

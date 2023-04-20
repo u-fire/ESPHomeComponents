@@ -1,0 +1,6 @@
+
+esphome/components/mod_ec/__pycache__/*
+esphome/components/mod_ph/__pycache__/*
+esphome/components/mod_orp/__pycache__/*
+.esphome/*
+secrets.yaml
