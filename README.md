@@ -28,6 +28,30 @@ There are several examples:
 
 * * *
 
+### Calibration
+Each sensor example comes with calibration controls. They are implemented with lamdas within Home Assistant. 
+
+An example of the lambda:
+```yaml
+  - platform: template
+    id: ec_calibrate_low
+    name: EC Calibrate Low 0.1
+    icon: mdi:format-vertical-align-bottom
+    on_press:
+        lambda: |-
+          id(ec).calibrateLow(0.1);
+```
+To change the particular low-point calibration, edit the 2 `0.1` points to match your solution. Do the same thing for mid- and high-points as needed. 
+
+ #### Mod-EC
+ The Mod-EC sensor can use up to three calibration points: low, mid, and high. A single point can also be used. Read the [datasheet](https://docs.google.com/document/d/1tfF-OZBhD1JVnNeXnkn0zgdczgs0994KFTN9oT3JPR4/export?format=pdf&ref=microfire-llc) for detailed information. 
+
+ #### Mod-pH
+ The Mod-pH sensor can use up to three calibration points: low, mid, and high. A single point can also be used. Read the [datasheet](https://docs.google.com/document/d/1DSG9bdEHDt9mdQInVfCWy4qiohi6sVeEy7QbvBfUmU0/export?format=pdf&ref=microfire-llc) for detailed information. 
+
+ #### Mod-ORP
+ The Mod-ORP sensor uses a single point. Read the [datasheet](https://docs.google.com/document/d/1nhQdt0k4pQb8jUJF8Eyrj9TyxYFNImvvaVTNkO53OXs/export?format=pdf&ref=microfire-llc) for detailed information. 
+
 ### Hardware
 All components can be purchased at [microfire.co](https://microfire.co/). 
 
