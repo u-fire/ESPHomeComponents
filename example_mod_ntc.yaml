@@ -21,10 +21,8 @@ captive_portal:
 # import the mod-ntc component
 external_components:
   - source:
-      # type: git
-      # url: https://github.com/u-fire/ESPHomeComponents/
-      type: local
-      path: esphome/components/
+      type: git
+      url: https://github.com/u-fire/ESPHomeComponents/
 
 # https://esphome.io/components/i2c.html
 i2c:
