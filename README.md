@@ -12,6 +12,7 @@ There are several examples:
   - [example_mod_orp.yaml](example_mod_orp.yaml): Mod-ORP used by itself
  - [example_ec_ph_dallas.yaml](example_ec_ph_dallas.yaml): Mod-EC, Mod-pH and DS18B20 used together
  - [example_ec_ph_orp_dallas.yaml](example_ec_ph_orp_dallas.yaml): Mod-EC, Mod-pH, Mod-ORP and DS18B20 used together
+ - [example_mod_ntc.yaml](example_mod_ntc.yaml): Mod-NTC used by itself
 
  ### Temperature Compensation
  For conductivity and pH measurements, the temperature of the liquid is important. For accurate meausurements, a temperature sensor is needed. 
@@ -25,6 +26,11 @@ There are several examples:
  #### Mod-pH
  The component has several optional configuration variables. See [example_mod_ph_dallas.yaml](example_mod_ph_dallas.yaml)for how it is used.
  - `temperature_sensor` - the ID of a temperature sensor, if not provided, 25°C is used. 
+
+ #### Mod-NTC
+ The component has several optional configuration variables. See [example_mod_ntc.yaml](example_mod_ntc.yaml)for how it is used.
+ - `beta` - the beta calibration value of the attached NTC temperture sensor.
+
 
 * * *
 
@@ -51,6 +57,9 @@ To change the particular low-point calibration, edit the 2 `0.1` points to match
 
  #### Mod-ORP
  The Mod-ORP sensor uses a single point. Read the [datasheet](https://docs.google.com/document/d/1nhQdt0k4pQb8jUJF8Eyrj9TyxYFNImvvaVTNkO53OXs/export?format=pdf&ref=microfire-llc) for detailed information. 
+
+ #### Mod-NTC
+ The Mod-NTC sensor uses a beta value, typically provided by the NTC manufacturer. Read the [datasheet](https://docs.google.com/document/d/1xpLEcBNHOzufufisoClGkodkMlKaTpSObjkInAdEXmk/export?format=pdf&ref=microfire-llc) for detailed information. 
 
 ### Hardware
 All components can be purchased at [microfire.co](https://microfire.co/). 

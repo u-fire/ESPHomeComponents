@@ -18,6 +18,16 @@ namespace esphome
                 return;
             }
             ESP_LOGI(TAG, "Found Mod-NTC version %d", version);
+            // don't save every time if not needed
+            if (this->getBeta() != beta_)
+            {
+                this->setBeta(beta_);
+                ESP_LOGI(TAG, "Writing beta value %f", beta_);
+            }
+            else
+            {
+                ESP_LOGI(TAG, "Beta value %f", beta_);
+            }
         }
 
         void Mod_NTCSensor::dump_config()
@@ -28,7 +38,7 @@ namespace esphome
         void Mod_NTCSensor::update()
         {
             int wait = 150;
-            
+
             _send_command(MEASURE_TEMP_TASK);
             this->set_timeout("data", wait, [this]()
                               { this->update_internal_(); });
@@ -41,7 +51,7 @@ namespace esphome
             if (status == STATUS_NO_ERROR)
             {
                 float ms = _read_4_bytes(TEMP_C_REGISTER);
-                ESP_LOGD(TAG, "'%s': Got temperature=%.2f °C", this->get_name().c_str(), ms);
+                ESP_LOGD(TAG, "'%s': Got temperature=%.2f °C, beta=%f", this->get_name().c_str(), ms, this->getBeta());
                 this->publish_state(ms);
             }
             else
@@ -60,7 +70,7 @@ namespace esphome
 
         float Mod_NTCSensor::setBeta(float beta)
         {
-            ESP_LOGD(TAG, "New beta value %f", beta);
+            ESP_LOGD(TAG, "Beta value %f", beta);
             _write_4_bytes(BETA_REGISTER, beta);
             _send_command(BETA_TASK);
 
@@ -69,7 +79,6 @@ namespace esphome
 
         float Mod_NTCSensor::getBeta()
         {
-            // ESP_LOGD(TAG, "Beta value %f", beta);
             return _read_4_bytes(BETA_REGISTER);
         }
 

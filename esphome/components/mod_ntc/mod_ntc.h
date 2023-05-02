@@ -37,17 +37,14 @@ namespace esphome
             void dump_config() override;
             void update() override;
             float get_setup_priority() const override;
+            void set_beta(float b) { this->beta_ = b; }
             float setBeta(float beta);
             float getBeta();
             void reset();
             void update_internal_();
-            void set_temperature_sensor_external(sensor::Sensor *temperature_sensor)
-            {
-                this->temperature_sensor = temperature_sensor;
-            }
 
         protected:
-            sensor::Sensor *temperature_sensor{nullptr};
+            float beta_{0.0};
             void _write_4_bytes(uint8_t reg, float f);
             void _send_command(uint8_t command);
             float _read_4_bytes(uint8_t reg);

@@ -21,8 +21,10 @@ captive_portal:
 # import the mod-ntc component
 external_components:
   - source:
-      type: git
-      url: https://github.com/u-fire/ESPHomeComponents/
+      # type: git
+      # url: https://github.com/u-fire/ESPHomeComponents/
+      type: local
+      path: esphome/components/
 
 # https://esphome.io/components/i2c.html
 i2c:
@@ -33,22 +35,8 @@ sensor:
   - platform: mod_ntc
     id: ntc
     name: Temperature
+    beta: 3950
 
 button:
   - platform: factory_reset
     name: Restart with Factory Default Settings
-
-number:
-  - platform: template
-    name: "NTC Beta"
-    min_value: 3000
-    max_value: 5000
-    step: 1
-    icon: mdi:beta
-    lambda: |-
-      return id(ntc).getBeta();
-    set_action:
-      lambda: |-
-            id(ntc).setBeta(x);
-            return;
-

@@ -7,6 +7,7 @@ from esphome.const import (
 )
 
 DEPENDENCIES = ["i2c"]
+CONF_BETA = "beta"
 
 mod_ntc_ns = cg.esphome_ns.namespace("mod_ntc")
 
@@ -23,12 +24,20 @@ CONFIG_SCHEMA = (
         device_class=DEVICE_CLASS_TEMPERATURE,
         icon="mdi:coolant-temperature"
     )
+    .extend(
+        {
+            cv.Optional(CONF_BETA, default=3977): cv.float_range(
+                min=3000, max=5000
+            )
+        }
+    )
     .extend(cv.polling_component_schema("60s"))
     .extend(i2c.i2c_device_schema(0x0c))
 )
-
 
 async def to_code(config):
     var = await sensor.new_sensor(config)
     await cg.register_component(var, config)
     await i2c.register_i2c_device(var, config)
+
+    cg.add(var.set_beta(config[CONF_BETA]))
