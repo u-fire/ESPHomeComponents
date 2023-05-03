@@ -1,0 +1,38 @@
+substitutions:
+  friendly_name: MLX90614
+  device_name: mlx90614
+esphome:
+  name: $device_name
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino
+logger:
+api:
+ota:
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  ap:
+    ssid: $device_name
+    password: !secret wifi_failover
+captive_portal:
+
+# import the mlx90614 component
+external_components:
+  - source:
+      type: git
+      url: https://github.com/u-fire/ESPHomeComponents/
+
+# https://esphome.io/components/i2c.html
+i2c:
+  sda: 21
+  scl: 22
+
+sensor:
+  - platform: mlx90614
+    id: mlx
+    ambient:
+      name: Ambient Temperature
+    object:
+      name: Object Temperature

@@ -22,7 +22,7 @@ CONFIG_SCHEMA = (
         accuracy_decimals=1,
         state_class=STATE_CLASS_MEASUREMENT,
         device_class=DEVICE_CLASS_TEMPERATURE,
-        icon="mdi:coolant-temperature"
+        icon="mdi:fire"
     )
     .extend(
         {

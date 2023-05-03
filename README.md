@@ -3,6 +3,8 @@ ESPHome Components
 
 This repo contains components for Microfire sensors that can be used in ESPHome and Home Assistant. 
 
+You can find a component for [MLX90614](https://www.melexis.com/en/product/MLX90614/Digital-Plug-Play-Infrared-Thermometer-TO-Can) as well. 
+
 ### Use
 There are several examples:
  - [example_mod_ec.yaml](example_mod_ec.yaml): Mod-EC used by itself
@@ -13,6 +15,7 @@ There are several examples:
  - [example_ec_ph_dallas.yaml](example_ec_ph_dallas.yaml): Mod-EC, Mod-pH and DS18B20 used together
  - [example_ec_ph_orp_dallas.yaml](example_ec_ph_orp_dallas.yaml): Mod-EC, Mod-pH, Mod-ORP and DS18B20 used together
  - [example_mod_ntc.yaml](example_mod_ntc.yaml): Mod-NTC used by itself
+ - [example_mlx90614.yaml](example_mlx90614.yaml): MLX90614 by itself
 
  ### Temperature Compensation
  For conductivity and pH measurements, the temperature of the liquid is important. For accurate meausurements, a temperature sensor is needed. 
