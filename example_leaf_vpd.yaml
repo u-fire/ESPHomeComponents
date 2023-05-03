@@ -1,0 +1,64 @@
+substitutions:
+  friendly_name: Microfire Mod-EC
+  device_name: microfire-mod-ec
+esphome:
+  name: $device_name
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino
+logger:
+api:
+ota:
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  ap:
+    ssid: $device_name
+    password: !secret wifi_failover
+captive_portal:
+
+# import the mod-ec component
+external_components:
+  - source:
+      type: git
+      url: https://github.com/u-fire/ESPHomeComponents/
+
+# https://esphome.io/components/i2c.html
+i2c:
+  sda: 21
+  scl: 22
+
+sensor:
+  - platform: mlx90614
+    id: mlx
+    ambient:
+      name: Ambient Temperature
+    object:
+      id: mlx_object
+      name: Leaf Temperature
+
+  - platform: sht3xd
+    temperature:
+      id: sht_air_temp
+      name: "Air Temperature"
+    humidity:
+      id: sht_air_rh
+      name: "Air Humidity"
+
+  - platform: template
+    name: "VPD"
+    unit_of_measurement: kPa
+    accuracy_decimals: 2
+    icon: "mdi:leaf"
+    state_class: measurement
+    lambda: |-
+      float _object_temp_c = id(mlx_object).state;
+      float _ambient_temp_c = id(sht_air_temp).state;
+      float _RH = id(sht_air_rh).state;
+      float l_vpd;
+      float a_vpd;
+
+      l_vpd = 0.61078 * exp((17.2694 * _object_temp_c) / (_object_temp_c + 237.3));
+      a_vpd = 0.61078 * exp((17.2694 * _ambient_temp_c) / (_ambient_temp_c + 237.3)) * (_RH / 100);
+      return (l_vpd - a_vpd);
