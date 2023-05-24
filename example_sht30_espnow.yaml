@@ -1,0 +1,30 @@
+esphome:
+  name: sht30-espnow
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino
+logger:
+
+# import the components
+external_components:
+  - source:
+      type: git
+      url: https://github.com/u-fire/ESPHomeComponents/
+
+# no need for api or wifi block when using just ESP-Now
+now_mqtt:
+
+i2c:
+  sda: 10
+  scl: 20
+
+sensor:
+  - platform: sht3xd
+    id: sht
+    temperature:
+      name: "Temperature"
+    humidity:
+      name: "Humidity"
+    address: 0x44
+    update_interval: 10s

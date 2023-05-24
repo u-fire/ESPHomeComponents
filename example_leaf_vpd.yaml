@@ -1,8 +1,10 @@
 substitutions:
-  friendly_name: Microfire Mod-EC
-  device_name: microfire-mod-ec
+  friendly_name: Microfire Leaf VPD
+  device_name: leaf-vpd
 esphome:
   name: $device_name
+  platformio_options:
+    board_build.flash_mode: dio
 esp32:
   board: esp32dev
   framework:
@@ -16,7 +18,7 @@ wifi:
   ap:
     ssid: $device_name
     password: !secret wifi_failover
-captive_portal:
+#captive_portal:
 
 # import the mod-ec component
 external_components:
@@ -26,8 +28,8 @@ external_components:
 
 # https://esphome.io/components/i2c.html
 i2c:
-  sda: 21
-  scl: 22
+  sda: 22
+  scl: 21
 
 sensor:
   - platform: mlx90614
