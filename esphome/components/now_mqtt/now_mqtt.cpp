@@ -32,7 +32,7 @@ namespace esphome
             }
             esp_wifi_set_protocol(WIFI_IF_STA, WIFI_PROTOCOL_LR);
             memcpy(peerInfo.peer_addr, broadcastAddress, 6);
-            peerInfo.channel = 0;
+            peerInfo.channel = 1;
             peerInfo.encrypt = false;
 
             if (esp_now_add_peer(&peerInfo) != ESP_OK)
