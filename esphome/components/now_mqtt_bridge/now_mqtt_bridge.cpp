@@ -10,6 +10,7 @@ namespace esphome
     namespace now_mqtt_bridge
     {
         static const char *const TAG = "now_mqtt_bridge.sensor";
+        int32_t Now_MQTT_BridgeComponent::last_rssi = 0;
 
         void Now_MQTT_BridgeComponent::receivecallback(const uint8_t *bssid, const uint8_t *data, int len)
         {
@@ -22,8 +23,7 @@ namespace esphome
             std::string json;
 
             // sender mac address
-            snprintf(macStr, sizeof(macStr), "%02x:%02x:%02x:%02x:%02x:%02x",
-                     bssid[0], bssid[1], bssid[2], bssid[3], bssid[4], bssid[5]);
+            snprintf(macStr, sizeof(macStr), "%02x%02x%02x%02x%02x%02x", bssid[0], bssid[1], bssid[2], bssid[3], bssid[4], bssid[5]);
 
             // received data
             memset(&received_string, 0, sizeof(received_string));
@@ -88,6 +88,38 @@ namespace esphome
             snprintf(topic, sizeof(topic), sensor_topic, tokens[0], tokens[3]);
             ESP_LOGI(TAG, "ESP-Now: %s", topic);
             mqtt::global_mqtt_client->publish(topic, tokens[5], strlen(tokens[5]), 2, true);
+
+            // create RSSI message
+            json = "";
+            doc["name"] = "rssi";
+            doc["dev_cla"] = "SIGNAL_STRENGTH";
+            doc["unit_of_meas"] = "dBm";
+            doc["stat_cla"] = "measurement";
+
+            std::string stat_t = tokens[0];
+            stat_t += "/sensor/";
+            stat_t += "rssi";
+            stat_t += "/state";
+            doc["stat_t"] = stat_t;
+
+            std::string uniq_id = macStr;
+            uniq_id += "_";
+            uniq_id += "rssi";
+            doc["uniq_id"] = uniq_id;
+
+            serializeJson(doc, json);
+
+            // make and send the rssi config topic
+            discovery_info = mqtt::global_mqtt_client->get_discovery_info();
+            memset(&topic, 0, sizeof(topic));
+            snprintf(topic, sizeof(topic), config_topic, discovery_info.prefix.c_str(), tokens[0], "rssi");
+            mqtt::global_mqtt_client->publish(topic, json.c_str(), json.length(), 2, true);
+
+            // make and send the rssi state topic
+            memset(&topic, 0, sizeof(topic));
+            snprintf(topic, sizeof(topic), sensor_topic, tokens[0], "rssi");
+            std::string last_rssi_str = std::to_string(last_rssi);
+            mqtt::global_mqtt_client->publish(topic, last_rssi_str.c_str(), last_rssi_str.length(), 2, true);
         }
 
         float Now_MQTT_BridgeComponent::get_setup_priority() const { return setup_priority::AFTER_CONNECTION; }
@@ -107,6 +139,8 @@ namespace esphome
                 return;
             }
             esp_now_register_recv_cb(Now_MQTT_BridgeComponent::call_on_data_recv_callback);
+            esp_wifi_set_promiscuous(true);
+            esp_wifi_set_promiscuous_rx_cb(Now_MQTT_BridgeComponent::call_prom_callback);
         }
 
         void Now_MQTT_BridgeComponent::call_on_data_recv_callback(const uint8_t *mac_addr, const uint8_t *incomingData, int len)
@@ -114,6 +148,29 @@ namespace esphome
             Now_MQTT_BridgeComponent().receivecallback(mac_addr, incomingData, len);
         }
 
+        void Now_MQTT_BridgeComponent::call_prom_callback(void *buf, wifi_promiscuous_pkt_type_t type)
+        {
+            Now_MQTT_BridgeComponent().promcallback(buf, type);
+        }
+
+        void Now_MQTT_BridgeComponent::promcallback(void *buf, wifi_promiscuous_pkt_type_t type)
+        {
+            // only filter mgmt frames
+            if (type != WIFI_PKT_MGMT)
+                return;
+
+            const wifi_promiscuous_pkt_t *ppkt = (wifi_promiscuous_pkt_t *)buf;
+            const wifi_ieee80211_packet_t *ipkt = (wifi_ieee80211_packet_t *)ppkt->payload;
+            const wifi_ieee80211_mac_hdr_t *hdr = &ipkt->hdr;
+
+            static const uint8_t esp_oui[3] = {0x18, 0xfe, 0x34}; // esp32 oui
+
+            // Filter vendor specific frame with the esp oui.
+            if (((ipkt->category_code) == 127) && (memcmp(ipkt->oui, esp_oui, 3) == 0))
+            {
+                last_rssi = ppkt->rx_ctrl.rssi;
+            }
+        }
         void Now_MQTT_BridgeComponent::split(char **argv, int *argc, char *string, const char delimiter, int allowempty)
         {
             *argc = 0;
