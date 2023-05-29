@@ -4,6 +4,7 @@
 #include <esp_now.h>
 #include <esp_wifi.h>
 #include <esphome/core/helpers.h>
+#include "esphome/core/version.h"
 
 namespace esphome
 {
@@ -68,6 +69,13 @@ namespace esphome
             line += obj->get_unit_of_measurement().c_str();
             line += ":";
             line += value_accuracy_to_string(state, accuracy);
+            line += ":";
+            line += obj->get_icon();
+            line += ":";
+            line += ESPHOME_VERSION;
+            line += ":";
+            line += ESPHOME_BOARD;
+            line += "::"; // spaceholder for manufacturer
 
             ESP_LOGI(TAG, "ESP-Now-MQTT Publish:  %s", line.c_str());
             ESP_ERROR_CHECK(esp_now_send(serverAddress, reinterpret_cast<const uint8_t *>(&line[0]), line.size()));

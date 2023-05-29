@@ -30,10 +30,10 @@ namespace esphome
             memcpy(&received_string, data, len);
 
             // tokenize the received string
-            char *tokens[6];
+            char *tokens[13];
             int argc;
             split(tokens, &argc, received_string, ':', 1);
-            ESP_LOGI(TAG, "ESP-Now: %s:%s:%s:%s:%s:%s", tokens[0], tokens[1], tokens[2], tokens[3], tokens[4], tokens[5]);
+            ESP_LOGI(TAG, "line rcv: %s:%s:%s:%s:%s:%s:%s:%s:%s:%s:%s", tokens[0], tokens[1], tokens[2], tokens[3], tokens[4], tokens[5], tokens[6], tokens[7], tokens[8], tokens[9], tokens[10]);
             if (strlen(tokens[1]) != 0)
             {
                 doc["dev_cla"] = tokens[1];
@@ -49,6 +49,13 @@ namespace esphome
             if (strlen(tokens[3]) != 0)
             {
                 doc["name"] = tokens[3];
+            }
+            if (strlen(tokens[6]) != 0)
+            {
+                std::string icon = tokens[6];
+                icon += ":";
+                icon += tokens[7];
+                doc["icon"] = icon;
             }
             if (strlen(tokens[0]) != 0)
             {
@@ -71,8 +78,8 @@ namespace esphome
             {
                 dev["name"] = tokens[0];
             }
-            dev["sw"] = "1.0.0";
-            dev["mdl"] = "esp32";
+            dev["sw"] = tokens[8];
+            dev["mdl"] = tokens[9];
             dev["mf"] = "espressif";
             serializeJson(doc, json);
 
@@ -80,13 +87,11 @@ namespace esphome
             discovery_info = mqtt::global_mqtt_client->get_discovery_info();
             memset(&topic, 0, sizeof(topic));
             snprintf(topic, sizeof(topic), config_topic, discovery_info.prefix.c_str(), tokens[0], tokens[3]);
-            ESP_LOGI(TAG, "ESP-Now: %s", topic);
             mqtt::global_mqtt_client->publish(topic, json.c_str(), json.length(), 2, true);
 
             // make and send the state topic
             memset(&topic, 0, sizeof(topic));
             snprintf(topic, sizeof(topic), sensor_topic, tokens[0], tokens[3]);
-            ESP_LOGI(TAG, "ESP-Now: %s", topic);
             mqtt::global_mqtt_client->publish(topic, tokens[5], strlen(tokens[5]), 2, true);
 
             // create RSSI message
@@ -95,6 +100,7 @@ namespace esphome
             doc["dev_cla"] = "SIGNAL_STRENGTH";
             doc["unit_of_meas"] = "dBm";
             doc["stat_cla"] = "measurement";
+            doc["icon"] = "mdi:wifi";
 
             std::string stat_t = tokens[0];
             stat_t += "/sensor/";
