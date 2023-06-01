@@ -24,3 +24,7 @@ example_leaf_vpd.yaml
 example_leaf_vpd.yaml
 espnow-light.yaml
 *.pyc
+*.py
+*.py
+esphome/components/now_mqtt/__init__.py
+*.py
