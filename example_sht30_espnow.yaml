@@ -5,7 +5,7 @@ esp32:
   variant: esp32c3
   framework:
     type: arduino
-# logger:
+logger:
 
 # import the components
 external_components:
@@ -14,7 +14,26 @@ external_components:
       url: https://github.com/u-fire/ESPHomeComponents/
 
 # no need for api or wifi block when using just ESP-Now
+globals:
+  - id: sent
+    type: int
+    restore_value: no
+    initial_value: '0'
+
 now_mqtt:
+  on_sent:
+    then:
+      - lambda: id(sent)++; 
+      - if:
+          condition:
+            lambda: 'return id(sent) == 2;'
+          then:
+          - deep_sleep.enter:
+              id: sleep_
+              sleep_duration: 5min
+
+deep_sleep:
+  id: sleep_
 
 i2c:
   sda: 10
@@ -28,8 +47,3 @@ sensor:
     humidity:
       name: "Humidity"
     address: 0x44
-    update_interval: 10s
-
-deep_sleep:
-  run_duration: 100ms
-  sleep_duration: 5min
