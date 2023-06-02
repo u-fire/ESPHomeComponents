@@ -5,7 +5,7 @@ esp32:
   variant: esp32c3
   framework:
     type: arduino
-logger:
+# logger:
 
 # import the components
 external_components:
@@ -26,8 +26,9 @@ now_mqtt:
       - lambda: id(sent)++; 
       - if:
           condition:
-            lambda: 'return id(sent) == 2;'
+            lambda: 'return id(sent) == 4;'
           then:
+            - lambda: id(sent) = 0;
           - deep_sleep.enter:
               id: sleep_
               sleep_duration: 5min
@@ -47,3 +48,26 @@ sensor:
     humidity:
       name: "Humidity"
     address: 0x44
+    update_interval: 10s
+
+  - platform: adc
+    id: adc_
+    name: "Battery voltage"
+    unit_of_measurement: "V"
+    pin: GPIO3
+    update_interval: 10s
+    attenuation: auto
+    filters:
+      - multiply: 2.0
+      - offset: 0.2
+
+  - platform: copy
+    source_id: adc_
+    device_class: BATTERY
+    name: "Battery"
+    unit_of_measurement: "%"
+    filters:
+    - calibrate_linear:
+      - 3.6 -> 5
+      - 4.1 -> 100
+    - lambda: return 30*round(x/30);

@@ -70,7 +70,12 @@ namespace esphome
             line += ":";
             line += value_accuracy_to_string(state, accuracy);
             line += ":";
-            line += obj->get_icon();
+            if (obj->get_icon().length() != 0)
+            {
+                line += obj->get_icon();
+            } else {
+                line += ":";
+            }
             line += ":";
             line += ESPHOME_VERSION;
             line += ":";
