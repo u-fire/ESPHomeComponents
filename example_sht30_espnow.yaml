@@ -29,9 +29,9 @@ now_mqtt:
             lambda: 'return id(sent) == 4;'
           then:
             - lambda: id(sent) = 0;
-          - deep_sleep.enter:
-              id: sleep_
-              sleep_duration: 5min
+            - deep_sleep.enter:
+                id: sleep_
+                sleep_duration: 5min
 
 deep_sleep:
   id: sleep_
@@ -69,5 +69,5 @@ sensor:
     filters:
     - calibrate_linear:
       - 3.6 -> 5
-      - 4.1 -> 100
+      - 4.2 -> 100
     - lambda: return 30*round(x/30);
