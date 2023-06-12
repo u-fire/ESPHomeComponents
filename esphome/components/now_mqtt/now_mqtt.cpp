@@ -48,6 +48,50 @@ namespace esphome
                 obj->add_on_state_callback([this, obj](float state)
                                            { this->on_sensor_update(obj, state); });
             }
+
+            for (auto *obj : App.get_binary_sensors())
+            {
+                obj->add_on_state_callback([this, obj](float state)
+                                           { this->on_binary_sensor_update(obj, state); });
+            }
+        }
+
+        void Now_MQTTComponent::on_binary_sensor_update(binary_sensor::BinarySensor *obj, float state)
+        {
+            if (!obj->has_state())
+                return;
+            uint8_t serverAddress[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+            std::string line;
+            const char *state_s = state ? "ON" : "OFF";
+
+            line = str_snake_case(App.get_name());
+            line += ":";
+            line += obj->get_device_class().c_str();
+            line += ":";
+            line += "binary_sensor";
+            line += ":";
+            line += str_snake_case(obj->get_name().c_str());
+            line += ":";
+            line += ":";
+            line += state_s;
+            line += ":";
+            if (obj->get_icon().length() != 0)
+            {
+                line += obj->get_icon();
+            }
+            else
+            {
+                line += ":";
+            }
+            line += ":";
+            line += ESPHOME_VERSION;
+            line += ":";
+            line += ESPHOME_BOARD;
+            line += "::";
+
+            ESP_LOGI(TAG, "ESP-Now-MQTT Publish:  %s", line.c_str());
+            ESP_ERROR_CHECK(esp_now_send(serverAddress, reinterpret_cast<const uint8_t *>(&line[0]), line.size()));
+            this->callback_.call(state);
         }
 
         void Now_MQTTComponent::on_sensor_update(sensor::Sensor *obj, float state)
@@ -73,14 +117,16 @@ namespace esphome
             if (obj->get_icon().length() != 0)
             {
                 line += obj->get_icon();
-            } else {
+            }
+            else
+            {
                 line += ":";
             }
             line += ":";
             line += ESPHOME_VERSION;
             line += ":";
             line += ESPHOME_BOARD;
-            line += "::"; // spaceholder for manufacturer
+            line += ":sensor:";
 
             ESP_LOGI(TAG, "ESP-Now-MQTT Publish:  %s", line.c_str());
             ESP_ERROR_CHECK(esp_now_send(serverAddress, reinterpret_cast<const uint8_t *>(&line[0]), line.size()));
