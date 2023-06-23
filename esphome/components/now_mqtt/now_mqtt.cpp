@@ -49,13 +49,16 @@ namespace esphome
                                            { this->on_sensor_update(obj, state); });
             }
 
+            #ifdef USE_BINARY_SENSOR
             for (auto *obj : App.get_binary_sensors())
             {
                 obj->add_on_state_callback([this, obj](float state)
                                            { this->on_binary_sensor_update(obj, state); });
             }
+            #endif
         }
 
+        #ifdef USE_BINARY_SENSOR
         void Now_MQTTComponent::on_binary_sensor_update(binary_sensor::BinarySensor *obj, float state)
         {
             if (!obj->has_state())
@@ -93,7 +96,8 @@ namespace esphome
             ESP_ERROR_CHECK(esp_now_send(serverAddress, reinterpret_cast<const uint8_t *>(&line[0]), line.size()));
             this->callback_.call(state);
         }
-
+        #endif
+        
         void Now_MQTTComponent::on_sensor_update(sensor::Sensor *obj, float state)
         {
             if (!obj->has_state())

@@ -5,7 +5,7 @@ esp32:
   variant: esp32c3
   framework:
     type: arduino
-# logger:
+logger:
 
 # import the components
 external_components:
@@ -54,12 +54,12 @@ sensor:
     id: adc_
     name: "Battery voltage"
     unit_of_measurement: "V"
-    pin: GPIO3
+    pin: GPIO4
     update_interval: 10s
     attenuation: auto
     filters:
       - multiply: 2.0
-      - offset: 0.2
+      - offset: 0.1
 
   - platform: copy
     source_id: adc_

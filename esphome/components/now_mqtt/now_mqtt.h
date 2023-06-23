@@ -2,9 +2,11 @@
 
 #include "esphome/core/component.h"
 #include "esphome/components/sensor/sensor.h"
-#include "esphome/components/i2c/i2c.h"
 #include "esphome/core/automation.h"
+
+#ifdef USE_BINARY_SENSOR
 #include "esphome/components/binary_sensor/binary_sensor.h"
+#endif
 
 namespace esphome
 {
@@ -19,7 +21,9 @@ namespace esphome
         private:
             CallbackManager<void(float)> callback_;
             void on_sensor_update(sensor::Sensor *obj, float state);
+            #ifdef USE_BINARY_SENSOR
             void on_binary_sensor_update(binary_sensor::BinarySensor *obj, float state);
+            #endif
         };
 
         class ESPNowSendTrigger : public Trigger<float>
