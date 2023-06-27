@@ -28,3 +28,4 @@ espnow-light.yaml
 *.py
 esphome/components/now_mqtt/__init__.py
 *.py
+example_mod_ph_heltec.yaml

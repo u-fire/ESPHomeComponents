@@ -1,0 +1,43 @@
+esphome:
+  name: example-sht3x-lora
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino
+logger:
+
+# https://esphome.io/components/spi.html for LoRa radio
+spi:
+  clk_pin: GPIO05
+  mosi_pin: GPIO27
+  miso_pin: GPIO19
+
+# https://esphome.io/components/i2c.html
+i2c:
+  sda: 32
+  scl: 33
+
+# import the components
+external_components:
+  - source:
+      type: git
+      url: https://github.com/u-fire/ESPHomeComponents/
+
+lora_mqtt:
+  cs_pin: GPIO18            # chip-select pin for LoRa radio, defaults to 18
+  reset_pin: GPIO14         # reset pin for LoRa radio, defaults to 14
+  dio_pin: GPIO26           # DIO0 pin for LoRa radio, defaults to 26
+  frequency: 915000000      # frequency to use, defaults to 915 MHz
+
+sensor:
+  - platform: sht3xd
+    temperature:
+      name: "Outside Temperature"
+    humidity:
+      name: "Outside Humidity"
+    update_interval: 10s
+
+binary_sensor:
+  - platform: gpio
+    id: bin_switch
+    pin: GPIO18

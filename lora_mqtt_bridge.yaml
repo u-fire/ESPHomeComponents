@@ -1,0 +1,43 @@
+esphome:
+  name: now-lora-mqtt-bridge
+esp32:
+  board: esp32dev
+  variant: esp32
+  framework:
+    type: arduino
+logger:
+
+# import the components
+external_components:
+  # - source:
+  #     type: git
+  #     url: https://github.com/u-fire/ESPHomeComponents/
+  - source:
+      type: local
+      path: esphome/components
+      
+# Setup SPI for the LoRa radio https://esphome.io/components/spi.html
+spi:
+  clk_pin: GPIO05
+  mosi_pin: GPIO27
+  miso_pin: GPIO19
+  
+lora_mqtt_bridge:
+  cs_pin: GPIO18            # chip-select pin for LoRa radio, defaults to 18
+  reset_pin: GPIO14         # reset pin for LoRa radio, defaults to 14
+  dio_pin: GPIO26           # DIO0 pin for LoRa radio, defaults to 26
+  frequency: 915000000      # frequency to use, defaults to 915 MHz
+
+# ESP-Now bridge works concurrently
+now_mqtt_bridge:
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+mqtt:
+  id: mqtt_broker
+  broker: !secret mqtt_broker
+  username: !secret mqtt_username
+  password: !secret mqtt_password
+
