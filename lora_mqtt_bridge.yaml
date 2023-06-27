@@ -9,12 +9,9 @@ logger:
 
 # import the components
 external_components:
-  # - source:
-  #     type: git
-  #     url: https://github.com/u-fire/ESPHomeComponents/
   - source:
-      type: local
-      path: esphome/components
+      type: git
+      url: https://github.com/u-fire/ESPHomeComponents/
       
 # Setup SPI for the LoRa radio https://esphome.io/components/spi.html
 spi:
