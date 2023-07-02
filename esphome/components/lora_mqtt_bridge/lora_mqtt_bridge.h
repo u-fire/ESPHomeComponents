@@ -13,6 +13,8 @@ namespace esphome
         {
         public:
             void setup() override;
+            void loop() override;
+            void process_line();
             float get_setup_priority() const override;
             void set_cs_constant(GPIOPin *constant) { this->_cs = constant; }
             void set_reset_constant(GPIOPin *constant) { this->_reset = constant; }
@@ -24,10 +26,6 @@ namespace esphome
             GPIOPin *_reset{0};
             GPIOPin *_dio0{0};
             long _frequency{0};
-
-            void receivecallback(int len);
-            static void call_on_data_recv_callback(int len);
-            static void process_line(void * parameter);
             void split(char **argv, int *argc, char *string, const char delimiter, int allowempty);
         };
     } // namespace lora_mqtt_bridge

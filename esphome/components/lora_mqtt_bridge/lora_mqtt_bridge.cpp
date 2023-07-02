@@ -5,6 +5,8 @@
 #include <esp_wifi.h>
 #include "esphome/components/mqtt/mqtt_client.h"
 #include "LoRa.h"
+#include<iostream>
+#include<sstream>
 
 namespace esphome
 {
@@ -12,8 +14,11 @@ namespace esphome
     {
         static const char *const TAG = "lora_mqtt_bridge.sensor";
 
-        void Lora_MQTT_BridgeComponent::process_line(void * parameter){
-            char received_string[251];
+        void Lora_MQTT_BridgeComponent::loop()
+        {
+            int packetSize = LoRa.parsePacket();
+            if (packetSize) {
+                            char received_string[251];
             char config_topic[] = "%s/sensor/%s/%s/config";
             char sensor_topic[] = "%s/sensor/%s/state";
             char binary_config_topic[] = "%s/binary_sensor/%s/%s/config";
@@ -29,23 +34,24 @@ namespace esphome
 
             // received data
             memset(&received_string, 0, sizeof(received_string));
-            int len = *((int*)parameter);
-            for (int i = 0; i < len; i++) {
+            for (int i = 0; i < packetSize; i++) {
                 received_string[i] = (char)LoRa.read();
             }
+
+            ESP_LOGI(TAG, "line str: %s", received_string);
 
             // tokenize the received string
             char *tokens[13];
             int argc;
-            Lora_MQTT_BridgeComponent().split(tokens, &argc, received_string, ':', 1);
-
-            ESP_LOGI(TAG, "line rcv: %s:%s:%s:%s:%s:%s:%s:%s:%s:%s:%s", tokens[0], tokens[1], tokens[2], tokens[3], tokens[4], tokens[5], tokens[6], tokens[7], tokens[8], tokens[9], tokens[10]);
-
+            this->split(tokens, &argc, received_string, ':', 1);
+            
             // if we didn't get 11 elements, this wasn't a message from our sensors
             if (argc != 11)
             {
                 return;
             }
+
+            ESP_LOGI(TAG, "line rcv: %s:%s:%s:%s:%s:%s:%s:%s:%s:%s:%s", tokens[0], tokens[1], tokens[2], tokens[3], tokens[4], tokens[5], tokens[6], tokens[7], tokens[8], tokens[9], tokens[10]);
 
             // check for binary_sensor or sensor
             message_type = tokens[2];
@@ -185,22 +191,10 @@ namespace esphome
             // make and send the rssi state topic
             memset(&topic, 0, sizeof(topic));
             snprintf(topic, sizeof(topic), sensor_topic, tokens[0], "rssi");
-            std::string last_rssi_str = std::to_string(LoRa.rssi());
+            std::string last_rssi_str = std::to_string(LoRa.packetRssi());
             mqtt::global_mqtt_client->publish(topic, last_rssi_str.c_str(), last_rssi_str.length(), 2, true);
 
-            vTaskDelete(NULL);
             }
-
-        void Lora_MQTT_BridgeComponent::receivecallback(int len)
-        {
-              xTaskCreate(
-                    this->process_line,
-                    "process_line",
-                    10000,             // Stack size (bytes)
-                    (void*)&len,             // Parameter
-                    5,                // Task priority
-                    NULL              // Task handle
-                );
         }
 
         float Lora_MQTT_BridgeComponent::get_setup_priority() const { return setup_priority::AFTER_CONNECTION; }
@@ -222,13 +216,7 @@ namespace esphome
                 return;
             }
 
-            LoRa.onReceive(call_on_data_recv_callback);
             LoRa.receive();
-        }
-
-        void Lora_MQTT_BridgeComponent::call_on_data_recv_callback(int len)
-        {
-            Lora_MQTT_BridgeComponent().receivecallback(len);
         }
 
         void Lora_MQTT_BridgeComponent::split(char **argv, int *argc, char *string, const char delimiter, int allowempty)
