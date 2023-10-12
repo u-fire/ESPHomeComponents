@@ -1,6 +1,6 @@
 substitutions:
   friendly_name: Microfire pH+EC
-  device_name: microfire-ph-ec
+  device_name: microfire-ph-ec-dallas
 esphome:
   name: $device_name
 esp32:
@@ -61,7 +61,7 @@ sensor:
 button:
   - platform: template
     id: ec_calibrate_low
-    name: EC Calibrate Low 0.1
+    name: EC Calibrate Low 0.1 mS/cm
     icon: mdi:format-vertical-align-bottom
     on_press:
         lambda: |-
@@ -69,7 +69,7 @@ button:
 
   - platform: template
     id: ec_calibrate_mid
-    name: EC Calibrate Mid 1.0
+    name: EC Calibrate Mid 1.0 mS/cm
     icon: mdi:format-vertical-align-center
     on_press:
         lambda: |-
@@ -77,11 +77,11 @@ button:
 
   - platform: template
     id: ec_calibrate_high
-    name: EC Calibrate High 10.0
+    name: EC Calibrate High 5.0 mS/cm
     icon: mdi:format-vertical-align-top
     on_press:
         lambda: |-
-          id(ec).calibrateHigh(10.0);
+          id(ec).calibrateHigh(5.0);
 
   - platform: template
     id: ec_calibrate_reset
