@@ -1,0 +1,66 @@
+substitutions:
+  friendly_name: Microfire Mod-CHRG
+  device_name: microfire-mod-chrg
+esphome:
+  name: $device_name
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino
+logger:
+api:
+ota:
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  ap:
+    ssid: $device_name
+    password: !secret wifi_failover
+captive_portal:
+
+deep_sleep:
+  run_duration: 10s
+  sleep_duration: 10min
+  
+# import the component
+external_components:
+  - source:
+      type: local
+      path: ./esphome/components/
+
+# https://esphome.io/components/i2c.html
+i2c:
+  sda: 21
+  scl: 22
+  scan: true
+
+sensor:
+  - platform: mod_chrg
+    id: orp
+    update_interval: 10s
+    state:
+      name: Charge state
+    battery_temperature:
+      name: Battery temperature
+    battery_voltage:
+      name: Battery Voltage
+    system_voltage:
+      name: System Voltage
+    bus_voltage:
+      name: Bus Voltage
+    input_voltage:
+      name: VPMID Voltage
+    battery_current:
+      name: Battery Current
+    bus_current:
+      name: Bus Current
+    die_temperature:
+      name: Die Temperature
+    bus_fault:
+      name: Bus voltage Fault
+    battery_fault:
+      name: Battery Fault
+    system_fault:
+      name: System Fault
+    Thermal Shutdown:
+      name: Thermal Shutdown
