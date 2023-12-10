@@ -86,6 +86,47 @@ namespace esphome
         }
         #endif
         
+        #ifdef USE_TEXT_SENSOR
+        void Lora_MQTTComponent::on_text_sensor_update(text_sensor::TextSensor *obj, std::string state)
+        {
+            if (!obj->has_state())
+                return;
+            uint8_t serverAddress[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+            std::string line;
+
+            line = str_snake_case(App.get_name());
+            line += ":";
+            //line += obj->get_device_class().c_str();
+            line += ":";
+            //line += "sensor";
+            line += ":";
+            line += str_snake_case(obj->get_name().c_str());
+            line += ":";
+            line += ":";
+            line += state;
+            line += ":";
+            if (obj->get_icon().length() != 0)
+            {
+                line += obj->get_icon();
+            }
+            else
+            {
+                line += ":";
+            }
+            line += ":";
+            line += ESPHOME_VERSION;
+            line += ":";
+            line += ESPHOME_BOARD;
+            line += "::";
+
+            ESP_LOGI(TAG, "LoRa-MQTT Publish:  %s", line.c_str());
+            LoRa.beginPacket();
+            LoRa.print(line.c_str());
+            LoRa.endPacket();
+            this->callback_text_.call(state);
+        }
+        #endif
+
         void Lora_MQTTComponent::on_sensor_update(sensor::Sensor *obj, float state)
         {
             if (!obj->has_state())
