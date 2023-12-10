@@ -9,7 +9,7 @@ from esphome.const import (
 )
 from esphome.core import coroutine_with_priority, CORE
 
-CONF_ON_SEND = "on_sent";
+CONF_ON_SEND = "on_sent"
 
 now_mqtt_ns = cg.esphome_ns.namespace("now_mqtt")
 ESPNowSendTrigger = now_mqtt_ns.class_("ESPNowSendTrigger", automation.Trigger.template())

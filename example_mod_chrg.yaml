@@ -1,6 +1,6 @@
 substitutions:
   friendly_name: Microfire Mod-CHRG
-  device_name: microfire-mod-chrg
+  device_name: microfire-mod-chrg-espnow
 esphome:
   name: $device_name
 esp32:
@@ -8,25 +8,34 @@ esp32:
   framework:
     type: arduino
 logger:
-api:
-ota:
-wifi:
-  ssid: !secret wifi_ssid
-  password: !secret wifi_password
-  ap:
-    ssid: $device_name
-    password: !secret wifi_failover
-captive_portal:
+
+globals:
+  - id: sent
+    type: int
+    restore_value: no
+    initial_value: '0'
+
+now_mqtt:
+  on_sent:
+    then:
+      - lambda: id(sent)++; 
+      - if:
+          condition:
+            lambda: 'return id(sent) == 13;'
+          then:
+            - lambda: id(sent) = 0;
+            - deep_sleep.enter:
+                id: sleep_
+                sleep_duration: 5min
 
 deep_sleep:
-  run_duration: 10s
-  sleep_duration: 10min
+  id: sleep_
   
 # import the component
 external_components:
   - source:
-      type: local
-      path: ./esphome/components/
+      type: git
+      url: https://github.com/u-fire/ESPHomeComponents/
 
 # https://esphome.io/components/i2c.html
 i2c:
@@ -36,7 +45,7 @@ i2c:
 
 sensor:
   - platform: mod_chrg
-    id: orp
+    id: chrg
     update_interval: 10s
     state:
       name: Charge state
@@ -62,5 +71,5 @@ sensor:
       name: Battery Fault
     system_fault:
       name: System Fault
-    Thermal Shutdown:
+    thermal_shutdown:
       name: Thermal Shutdown
