@@ -12,7 +12,7 @@ external_components:
   - source:
       type: git
       url: https://github.com/u-fire/ESPHomeComponents/
-      
+
 # Setup SPI for the LoRa radio https://esphome.io/components/spi.html
 spi:
   clk_pin: GPIO05
@@ -24,6 +24,12 @@ lora_mqtt_bridge:
   reset_pin: GPIO14         # reset pin for LoRa radio, defaults to 14
   dio_pin: GPIO26           # DIO0 pin for LoRa radio, defaults to 26
   frequency: 915000000      # frequency to use, defaults to 915 MHz
+  # the options below are very dependent on your particular board and chip
+  # not all combinations work
+  # sync: 0xF3              # sets the sync word, defaults to 0x12
+  # coding: 5               # sets the coding rate, defaults to 5
+  # bandwidth: 250000       # sets the bandwidth, defaults to 125,000
+  # spread: 12              # sets the spread, defaults to 7
 
 # ESP-Now bridge works concurrently
 now_mqtt_bridge:

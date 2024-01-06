@@ -34,8 +34,8 @@ deep_sleep:
 # import the component
 external_components:
   - source:
-      type: git
-      url: https://github.com/u-fire/ESPHomeComponents/
+      type: local
+      path: ./esphome/components/
 
 # https://esphome.io/components/i2c.html
 i2c:
