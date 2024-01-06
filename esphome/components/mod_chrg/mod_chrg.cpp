@@ -20,6 +20,11 @@ namespace esphome
             data &= ~(1ULL << ADC_SAMPLE_1); // 12 bit
             data &= ~(1ULL << ADC_SAMPLE_2); // 12 bit
             _write_byte(ADC_CONTROL, data);
+
+            data = _read_byte(0x14);
+            data |= (1UL << 5);
+
+            _write_byte(0x14, data);
         }
 
         void Mod_CHRGSensor::update()
@@ -101,6 +106,8 @@ namespace esphome
                 _adc = _getTDIE();
                 this->tdie_sensor->publish_state(_adc);
             }
+
+            _resetWatchdog();
         }
 
         float Mod_CHRGSensor::get_setup_priority() const { return setup_priority::DATA; }
