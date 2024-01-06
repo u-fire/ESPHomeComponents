@@ -15,36 +15,40 @@ namespace esphome
         void Lora_MQTTComponent::setup()
         {
             ESP_LOGD(TAG, "Setting up LoRa-MQTT...");
-            auto *cs_internal = (InternalGPIOPin *) _cs;
+            auto *cs_internal = (InternalGPIOPin *)_cs;
             int cs_pin = cs_internal->get_pin();
-            auto *reset_internal = (InternalGPIOPin *) _reset;
+            auto *reset_internal = (InternalGPIOPin *)_reset;
             int reset_pin = reset_internal->get_pin();
-            auto *dio0_internal = (InternalGPIOPin *) _dio0;
+            auto *dio0_internal = (InternalGPIOPin *)_dio0;
             int dio0_pin = dio0_internal->get_pin();
 
             LoRa.setPins(cs_pin, reset_pin, dio0_pin);
-            if (!LoRa.begin(_frequency)) {
+            if (!LoRa.begin(_frequency))
+            {
                 this->mark_failed();
                 ESP_LOGE(TAG, "Error initializing LoRa");
                 return;
             }
-
+            LoRa.setSyncWord(_sync);
+            LoRa.setCodingRate4(_coding);
+            LoRa.setSpreadingFactor(_spread);
+            LoRa.setSignalBandwidth(_bandwidth);
             for (auto *obj : App.get_sensors())
             {
                 obj->add_on_state_callback([this, obj](float state)
                                            { this->on_sensor_update(obj, state); });
             }
 
-            #ifdef USE_BINARY_SENSOR
+#ifdef USE_BINARY_SENSOR
             for (auto *obj : App.get_binary_sensors())
             {
                 obj->add_on_state_callback([this, obj](float state)
                                            { this->on_binary_sensor_update(obj, state); });
             }
-            #endif
+#endif
         }
 
-        #ifdef USE_BINARY_SENSOR
+#ifdef USE_BINARY_SENSOR
         void Lora_MQTTComponent::on_binary_sensor_update(binary_sensor::BinarySensor *obj, float state)
         {
             if (!obj->has_state())
@@ -84,9 +88,9 @@ namespace esphome
             LoRa.endPacket();
             this->callback_.call(state);
         }
-        #endif
-        
-        #ifdef USE_TEXT_SENSOR
+#endif
+
+#ifdef USE_TEXT_SENSOR
         void Lora_MQTTComponent::on_text_sensor_update(text_sensor::TextSensor *obj, std::string state)
         {
             if (!obj->has_state())
@@ -96,9 +100,9 @@ namespace esphome
 
             line = str_snake_case(App.get_name());
             line += ":";
-            //line += obj->get_device_class().c_str();
+            // line += obj->get_device_class().c_str();
             line += ":";
-            //line += "sensor";
+            // line += "sensor";
             line += ":";
             line += str_snake_case(obj->get_name().c_str());
             line += ":";
@@ -125,7 +129,7 @@ namespace esphome
             LoRa.endPacket();
             this->callback_text_.call(state);
         }
-        #endif
+#endif
 
         void Lora_MQTTComponent::on_sensor_update(sensor::Sensor *obj, float state)
         {
