@@ -1,0 +1,119 @@
+substitutions:
+  friendly_name: Microfire pH+EC+Temp
+  device_name: microfire-ph-ec-temp
+esphome:
+  name: $device_name
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino
+logger:
+api:
+ota:
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  ap:
+    ssid: $device_name
+    password: !secret wifi_failover
+captive_portal:
+
+# import the components
+external_components:
+  - source:
+      type: git
+      url: https://github.com/u-fire/ESPHomeComponents/
+
+# https://esphome.io/components/i2c.html
+i2c:
+  sda: 21
+  scl: 22
+
+sensor:
+  - platform: mod_ntc
+    id: water_temp
+    name: Temperature
+    on_value:
+      then:
+        - component.update: ec
+        - component.update: ph
+
+  - platform: mod_ec
+    id: ec
+    update_interval: never
+    name: EC
+    temperature_sensor: water_temp
+
+  - platform: mod_ph
+    id: ph
+    update_interval: never
+    name: pH
+    temperature_sensor: water_temp
+
+button:
+  - platform: template
+    id: ec_calibrate_low
+    name: EC Calibrate Low 0.1
+    icon: mdi:format-vertical-align-bottom
+    on_press:
+        lambda: |-
+          id(ec).calibrateLow(0.1);
+
+  - platform: template
+    id: ec_calibrate_mid
+    name: EC Calibrate Mid 1.0
+    icon: mdi:format-vertical-align-center
+    on_press:
+        lambda: |-
+          id(ec).calibrateMid(1.0);
+
+  - platform: template
+    id: ec_calibrate_high
+    name: EC Calibrate High 10.0
+    icon: mdi:format-vertical-align-top
+    on_press:
+        lambda: |-
+          id(ec).calibrateHigh(10.0);
+
+  - platform: template
+    id: ec_calibrate_reset
+    name: EC Calibrate Reset
+    icon: mdi:restore
+    on_press:
+        lambda: |-
+          id(ec).calibrateReset();
+
+  - platform: template
+    id: ph_calibrate_low
+    name: pH Calibrate Low 4.0
+    icon: mdi:format-vertical-align-bottom
+    on_press:
+        lambda: |-
+          id(ph).calibrateLow(4.0);
+
+  - platform: template
+    id: ph_calibrate_mid
+    name: pH Calibrate Mid 7.0
+    icon: mdi:format-vertical-align-center
+    on_press:
+        lambda: |-
+          id(ph).calibrateMid(7.0);
+
+  - platform: template
+    id: ph_calibrate_high
+    name: pH Calibrate High 10.0
+    icon: mdi:format-vertical-align-top
+    on_press:
+        lambda: |-
+          id(ph).calibrateHigh(10.0);
+
+  - platform: template
+    id: ph_calibrate_reset
+    name: pH Calibrate Reset
+    icon: mdi:restore
+    on_press:
+        lambda: |-
+          id(ph).calibrateReset();
+
+  - platform: factory_reset
+    name: Restart with Factory Default Settings

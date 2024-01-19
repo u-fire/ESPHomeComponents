@@ -10,7 +10,6 @@ esphome/components/lc709203f/*
 secrets.yaml
 example_lc709203f.yaml
 example_leaf_vpd.yaml
-example_ec_ph_ntc.yaml
 example_ec_ph_ntc_mqtt.yaml
 example_leaf_vpd.yaml
 example_leaf_vpd.yaml
