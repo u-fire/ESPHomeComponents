@@ -10,8 +10,8 @@ logger:
 # import the components
 external_components:
   - source:
-      type: git
-      url: https://github.com/u-fire/ESPHomeComponents/
+      type: local
+      path: esphome/components
 
 # ESP-Now bridge works concurrently
 now_mqtt_bridge:
