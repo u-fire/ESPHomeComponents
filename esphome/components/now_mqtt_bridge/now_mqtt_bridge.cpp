@@ -193,7 +193,8 @@ namespace esphome
 
         void Now_MQTT_BridgeComponent::setup()
         {
-            #ifdef USE_WIFI
+            // if there's no wifi section, init wifi here
+            #ifndef USE_WIFI
             ESP_LOGD(TAG, "Setting up ESP-Now WiFi interface...");
             ESP_ERROR_CHECK(esp_netif_init());
             wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
