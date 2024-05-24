@@ -31,6 +31,10 @@ namespace esphome
         public:
             void setup() override;
             float get_setup_priority() const override;
+            void set_wifi_channel(uint8_t channel) { this->wifi_channel_ = channel; }
+
+        protected:
+            uint8_t wifi_channel_;
 
         private:
             static int32_t last_rssi;

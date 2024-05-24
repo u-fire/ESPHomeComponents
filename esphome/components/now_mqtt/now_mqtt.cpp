@@ -24,6 +24,7 @@ namespace esphome
             ESP_ERROR_CHECK(esp_wifi_set_storage(WIFI_STORAGE_RAM));
             ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
             ESP_ERROR_CHECK(esp_wifi_start());
+            ESP_ERROR_CHECK(esp_wifi_set_channel(this->wifi_channel_, WIFI_SECOND_CHAN_NONE));
 
             if (esp_now_init() != ESP_OK)
             {
@@ -33,7 +34,7 @@ namespace esphome
             }
             esp_wifi_set_protocol(WIFI_IF_STA, WIFI_PROTOCOL_LR);
             memcpy(peerInfo.peer_addr, broadcastAddress, 6);
-            peerInfo.channel = 1;
+            peerInfo.channel = this->wifi_channel_;
             peerInfo.encrypt = false;
 
             if (esp_now_add_peer(&peerInfo) != ESP_OK)
