@@ -12,7 +12,7 @@ namespace esphome
         static const char *const TAG = "now_mqtt_bridge.sensor";
         int32_t Now_MQTT_BridgeComponent::last_rssi = 0;
 
-        void Now_MQTT_BridgeComponent::receivecallback(const uint8_t *bssid, const uint8_t *data, int len)
+        void Now_MQTT_BridgeComponent::receivecallback(const uint8_t *mac, const uint8_t *data, int len)
         {
             char received_string[251];
             char config_topic[] = "%s/sensor/%s/%s/config";
@@ -22,12 +22,13 @@ namespace esphome
 
             char topic[250];
             char macStr[18];
-            StaticJsonDocument<500> doc;
+            DynamicJsonDocument doc(1024);
             JsonObject dev;
             std::string json;
             std::string message_type;
 
             // sender mac address
+            const uint8_t *bssid = mac;
             snprintf(macStr, sizeof(macStr), "%02x%02x%02x%02x%02x%02x", bssid[0], bssid[1], bssid[2], bssid[3], bssid[4], bssid[5]);
 
             // received data
@@ -70,7 +71,7 @@ namespace esphome
                     uniq_id += tokens[3];
                     doc["uniq_id"] = uniq_id;
                 }
-                dev = doc.createNestedObject("dev");
+                dev = doc["dev"].to<JsonObject>();
                 dev["ids"] = macStr;
                 if (strlen(tokens[0]) != 0)
                 {
@@ -132,7 +133,7 @@ namespace esphome
                     uniq_id += tokens[3];
                     doc["uniq_id"] = uniq_id;
                 }
-                dev = doc.createNestedObject("dev");
+                dev = doc["dev"].to<JsonObject>();
                 dev["ids"] = macStr;
                 if (strlen(tokens[0]) != 0)
                 {
@@ -157,6 +158,7 @@ namespace esphome
 
             // create RSSI message
             json = "";
+            doc.clear();
             doc["name"] = "rssi";
             doc["dev_cla"] = "SIGNAL_STRENGTH";
             doc["unit_of_meas"] = "dBm";
@@ -177,16 +179,16 @@ namespace esphome
             serializeJson(doc, json);
 
             // make and send the rssi config topic
-            discovery_info = mqtt::global_mqtt_client->get_discovery_info();
-            memset(&topic, 0, sizeof(topic));
-            snprintf(topic, sizeof(topic), config_topic, discovery_info.prefix.c_str(), tokens[0], "rssi");
-            mqtt::global_mqtt_client->publish(topic, json.c_str(), json.length(), 2, true);
+            // discovery_info = mqtt::global_mqtt_client->get_discovery_info();
+            // memset(&topic, 0, sizeof(topic));
+            // snprintf(topic, sizeof(topic), config_topic, discovery_info.prefix.c_str(), tokens[0], "rssi");
+            // mqtt::global_mqtt_client->publish(topic, json.c_str(), json.length(), 2, true);
 
-            // make and send the rssi state topic
-            memset(&topic, 0, sizeof(topic));
-            snprintf(topic, sizeof(topic), sensor_topic, tokens[0], "rssi");
-            std::string last_rssi_str = std::to_string(last_rssi);
-            mqtt::global_mqtt_client->publish(topic, last_rssi_str.c_str(), last_rssi_str.length(), 2, true);
+            // // make and send the rssi state topic
+            // memset(&topic, 0, sizeof(topic));
+            // snprintf(topic, sizeof(topic), sensor_topic, tokens[0], "rssi");
+            // std::string last_rssi_str = std::to_string(last_rssi);
+            // mqtt::global_mqtt_client->publish(topic, last_rssi_str.c_str(), last_rssi_str.length(), 2, true);
         }
 
         float Now_MQTT_BridgeComponent::get_setup_priority() const { return setup_priority::AFTER_CONNECTION; }
@@ -221,9 +223,9 @@ namespace esphome
             esp_wifi_set_promiscuous_rx_cb(Now_MQTT_BridgeComponent::call_prom_callback);
         }
 
-        void Now_MQTT_BridgeComponent::call_on_data_recv_callback(const uint8_t *mac_addr, const uint8_t *incomingData, int len)
+        void Now_MQTT_BridgeComponent::call_on_data_recv_callback(const uint8_t *mac, const uint8_t *incomingData, int len)
         {
-            Now_MQTT_BridgeComponent().receivecallback(mac_addr, incomingData, len);
+            Now_MQTT_BridgeComponent().receivecallback(mac, incomingData, len);
         }
 
         void Now_MQTT_BridgeComponent::call_prom_callback(void *buf, wifi_promiscuous_pkt_type_t type)

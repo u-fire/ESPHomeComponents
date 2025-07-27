@@ -1,8 +1,21 @@
 #include "now_mqtt.h"
 #include "esphome/core/log.h"
 #include "esphome/core/application.h"
+#ifdef USE_ESP32
+#include "Arduino.h"
 #include <esp_now.h>
+#include <WiFi.h>
 #include <esp_wifi.h>
+#endif
+#ifdef USE_ESP8266
+// included due to compilation error in espnow for missing u8 type
+// more info: https://community.platformio.org/t/error-u8-was-not-declared-in-this-scope/20348
+#include "Arduino.h"
+#include <espnow.h>
+#include <ESP8266WiFi.h>
+// #include "tcpip_adapter.h"
+// #include "esp_event_loop.h"
+#endif
 #include <esphome/core/helpers.h>
 #include "esphome/core/version.h"
 
@@ -13,6 +26,7 @@ namespace esphome
         static const char *const TAG = "now_mqtt.sensor";
         void Now_MQTTComponent::setup()
         {
+#ifdef USE_ESP32
             uint8_t broadcastAddress[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
             esp_now_peer_info_t peerInfo = {};
 
@@ -42,31 +56,42 @@ namespace esphome
                 ESP_LOGE(TAG, "Failed to add peer");
                 return;
             }
-
+#endif
+#ifdef USE_ESP8266
+            uint8_t broadcastAddress[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+		    WiFi.mode(WIFI_STA);
+            if (esp_now_init() != 0)
+            {
+                this->mark_failed();
+                ESP_LOGE(TAG, "Error initializing ESP-NOW");
+                return;
+            }
+            esp_now_add_peer(broadcastAddress, ESP_NOW_ROLE_COMBO, 1, NULL, 0);
+#endif
             for (auto *obj : App.get_sensors())
             {
                 obj->add_on_state_callback([this, obj](float state)
                                            { this->on_sensor_update(obj, state); });
             }
 
-            #ifdef USE_BINARY_SENSOR
+#ifdef USE_BINARY_SENSOR
             for (auto *obj : App.get_binary_sensors())
             {
                 obj->add_on_state_callback([this, obj](float state)
                                            { this->on_binary_sensor_update(obj, state); });
             }
-            #endif
+#endif
 
-            #ifdef USE_TEXT_SENSOR
+#ifdef USE_TEXT_SENSOR
             for (auto *obj : App.get_text_sensors())
             {
                 obj->add_on_state_callback([this, obj](std::string state)
                                            { this->on_text_sensor_update(obj, state); });
             }
-            #endif
+#endif
         }
 
-        #ifdef USE_BINARY_SENSOR
+#ifdef USE_BINARY_SENSOR
         void Now_MQTTComponent::on_binary_sensor_update(binary_sensor::BinarySensor *obj, float state)
         {
             if (!obj->has_state())
@@ -101,12 +126,17 @@ namespace esphome
             line += "::";
 
             ESP_LOGI(TAG, "ESP-Now-MQTT Publish:  %s", line.c_str());
+            #ifdef USE_ESP32
             ESP_ERROR_CHECK(esp_now_send(serverAddress, reinterpret_cast<const uint8_t *>(&line[0]), line.size()));
+            #endif
+            #ifdef USE_ESP8266
+            esp_now_send(serverAddress, (uint8_t *)&line[0], line.size());
+            #endif
             this->callback_.call(state);
         }
-        #endif
-        
-        #ifdef USE_TEXT_SENSOR
+#endif
+
+#ifdef USE_TEXT_SENSOR
         void Now_MQTTComponent::on_text_sensor_update(text_sensor::TextSensor *obj, std::string state)
         {
             if (!obj->has_state())
@@ -116,9 +146,9 @@ namespace esphome
 
             line = str_snake_case(App.get_name());
             line += ":";
-            //line += obj->get_device_class().c_str();
+            // line += obj->get_device_class().c_str();
             line += ":";
-            //line += "sensor";
+            // line += "sensor";
             line += ":";
             line += str_snake_case(obj->get_name().c_str());
             line += ":";
@@ -140,10 +170,15 @@ namespace esphome
             line += "::";
 
             ESP_LOGI(TAG, "ESP-Now-MQTT Publish:  %s", line.c_str());
+            #ifdef USE_ESP32
             ESP_ERROR_CHECK(esp_now_send(serverAddress, reinterpret_cast<const uint8_t *>(&line[0]), line.size()));
+            #endif
+            #ifdef USE_ESP8266
+            esp_now_send(serverAddress, (uint8_t *)&line[0], line.size());
+            #endif
             this->callback_text_.call(state);
         }
-        #endif
+#endif
 
         void Now_MQTTComponent::on_sensor_update(sensor::Sensor *obj, float state)
         {
@@ -180,7 +215,12 @@ namespace esphome
             line += ":sensor:";
 
             ESP_LOGI(TAG, "ESP-Now-MQTT Publish:  %s", line.c_str());
+            #ifdef USE_ESP32
             ESP_ERROR_CHECK(esp_now_send(serverAddress, reinterpret_cast<const uint8_t *>(&line[0]), line.size()));
+            #endif
+            #ifdef USE_ESP8266
+            esp_now_send(serverAddress, (uint8_t *)&line[0], line.size());
+            #endif
             this->callback_.call(state);
         }
     } // namespace now_mqtt
