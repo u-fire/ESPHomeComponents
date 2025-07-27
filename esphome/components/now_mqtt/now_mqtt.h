@@ -20,7 +20,11 @@ namespace esphome
         {
         public:
             void setup() override;
+            void set_wifi_channel(uint8_t channel) { this->wifi_channel_ = channel; }
             void add_on_state_callback(std::function<void(float)> &&callback) { this->callback_.add(std::move(callback)); }
+
+        protected:
+            uint8_t wifi_channel_;
 
         private:
             CallbackManager<void(float)> callback_;
